@@ -21,7 +21,7 @@ AnomalyDetector::AnomalyDetector() : bufferIndex(0), bufferSize(0)
     // Initialize sensor history buffer
     for (int i = 0; i < ANOMALY_BUFFER_SIZE; i++)
     {
-        sensorHistory[i] = SensorData();
+    sensorHistory[i] = LocalSensorData();
     }
 }
 
@@ -32,7 +32,7 @@ bool AnomalyDetector::begin()
     return true;
 }
 
-float AnomalyDetector::calculateAnomalyScore(const SensorData &data)
+float AnomalyDetector::calculateAnomalyScore(const LocalSensorData &data)
 {
     // Add new data to history
     addToBuffer(data);
@@ -100,7 +100,7 @@ bool AnomalyDetector::isLightAnomaly(float light)
     return abs(zScore) > anomalyThreshold;
 }
 
-bool AnomalyDetector::isSensorFault(const SensorData &data)
+bool AnomalyDetector::isSensorFault(const LocalSensorData &data)
 {
     // Check for sensor disconnection (readings at extremes)
     if (isSensorDisconnected(data))
@@ -114,7 +114,7 @@ bool AnomalyDetector::isSensorFault(const SensorData &data)
     return calculateAnomalyScore(data) > 0.997; // 99.7% confidence
 }
 
-bool AnomalyDetector::isSensorDisconnected(const SensorData &data)
+bool AnomalyDetector::isSensorDisconnected(const LocalSensorData &data)
 {
     // Check for typical disconnection patterns
 
@@ -137,7 +137,7 @@ bool AnomalyDetector::isSensorDisconnected(const SensorData &data)
     return false;
 }
 
-bool AnomalyDetector::isSensorOutOfRange(const SensorData &data)
+bool AnomalyDetector::isSensorOutOfRange(const LocalSensorData &data)
 {
     // Check for physically impossible values
 
@@ -160,7 +160,7 @@ bool AnomalyDetector::isSensorOutOfRange(const SensorData &data)
     return false;
 }
 
-void AnomalyDetector::addToBuffer(const SensorData &data)
+void AnomalyDetector::addToBuffer(const LocalSensorData &data)
 {
     // Add data to circular buffer
     sensorHistory[bufferIndex] = data;
@@ -286,7 +286,7 @@ void AnomalyDetector::clearHistory()
 
     for (int i = 0; i < ANOMALY_BUFFER_SIZE; i++)
     {
-        sensorHistory[i] = SensorData();
+    sensorHistory[i] = LocalSensorData();
     }
 
     resetStatistics();

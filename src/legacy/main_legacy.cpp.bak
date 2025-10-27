@@ -1,0 +1,13 @@
+/**
+ * LEGACY VERSION - Original Smart Irrigation System
+ * 
+ * This is the original implementation using ESP8266 and simple threshold logic.
+ * Preserved for reference and backward compatibility.
+ * 
+ * For the new Edge AI version, see: edge-ai/arduino-ml/examples/smart_irrigation.ino
+ * 
+ * @author iLyas Bakouch
+ * @github https://github.com/SmartThingsDIY
+ * @version 3.0 (Legacy)
+ */
+// This file has been moved to legacy/main_legacy.cpp.bak to prevent build conflicts.
