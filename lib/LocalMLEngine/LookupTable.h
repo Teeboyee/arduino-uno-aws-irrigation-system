@@ -25,14 +25,8 @@ class LookupTable {
 private:
     // Plant database stored in program memory (PROGMEM)
     static const PlantCharacteristics PLANT_DATABASE[5] PROGMEM;
-    
-    // Runtime adjustable thresholds
-    float customThresholds[20][3]; // [plant_type][moisture, temp, humidity]
-    bool hasCustomThresholds[20];
-    
     // Helper methods
     float getStageModifier(PlantType type, GrowthStage stage);
-    
 public:
     LookupTable();
     
@@ -50,11 +44,7 @@ public:
     const char* getPlantName(PlantType type);
     PlantCharacteristics getPlantCharacteristics(PlantType type);
     
-    // Customization methods
-    void updateThresholds(PlantType type, float moistureThreshold, 
-                         float tempOptimal, float humidityOptimal);
-    void resetToDefaults(PlantType type);
-    void resetAllToDefaults();
+    // Customization methods (removed for RAM savings)
     
     // Utility methods
     bool isValidPlantType(PlantType type);

@@ -25,7 +25,7 @@
 // Memory optimization for Arduino Uno (disable advanced features)
 #define MEMORY_OPTIMIZED 1
 
-#include "LocalMLEngine.h"
+#include <LocalMLEngine.h>
 #include <ArduinoJson.h>
 #include <SoftwareSerial.h>
 #ifndef MEMORY_OPTIMIZED
@@ -51,20 +51,6 @@ struct SensorData {
     float lightLevel = 0;
 };
 
-// Plant type constants
-enum PlantType {
-    TOMATO,
-    LETTUCE,
-    BASIL,
-    GENERIC
-};
-
-// Growth stage constants
-enum GrowthStage {
-    VEGETATIVE,
-    FLOWERING,
-    MATURE
-};
 
 // --- END: Add missing type and constant definitions for compilation ---
 

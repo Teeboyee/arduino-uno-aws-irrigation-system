@@ -23,15 +23,7 @@ const PlantCharacteristics LookupTable::PLANT_DATABASE[5] PROGMEM = {
 
 LookupTable::LookupTable()
 {
-    // Initialize custom thresholds
-    for (int i = 0; i < 20; i++)
-    {
-        hasCustomThresholds[i] = false;
-        for (int j = 0; j < 3; j++)
-        {
-            customThresholds[i][j] = 0;
-        }
-    }
+    // No RAM-based custom thresholds
 }
 
 bool LookupTable::begin()
@@ -46,21 +38,8 @@ float LookupTable::getMoistureThreshold(PlantType type, GrowthStage stage)
     {
         return 400; // Default threshold
     }
-
-    float baseThreshold;
-
-    // Use custom threshold if available
-    if (hasCustomThresholds[type])
-    {
-        baseThreshold = customThresholds[type][0];
-    }
-    else
-    {
-        // Read from program memory
-        baseThreshold = pgm_read_float(&PLANT_DATABASE[type].moistureThreshold);
-    }
-
-    // Apply growth stage modifier
+    // Always use program memory value
+    float baseThreshold = pgm_read_float(&PLANT_DATABASE[type].moistureThreshold);
     float modifier = getStageModifier(type, stage);
     return baseThreshold * modifier;
 }
@@ -71,15 +50,7 @@ float LookupTable::getTemperatureOptimal(PlantType type)
     {
         return 22; // Default temperature
     }
-
-    if (hasCustomThresholds[type])
-    {
-        return customThresholds[type][1];
-    }
-    else
-    {
-        return pgm_read_float(&PLANT_DATABASE[type].temperatureOptimal);
-    }
+    return pgm_read_float(&PLANT_DATABASE[type].temperatureOptimal);
 }
 
 float LookupTable::getHumidityOptimal(PlantType type)
@@ -88,15 +59,7 @@ float LookupTable::getHumidityOptimal(PlantType type)
     {
         return 60; // Default humidity
     }
-
-    if (hasCustomThresholds[type])
-    {
-        return customThresholds[type][2];
-    }
-    else
-    {
-        return pgm_read_float(&PLANT_DATABASE[type].humidityOptimal);
-    }
+    return pgm_read_float(&PLANT_DATABASE[type].humidityOptimal);
 }
 
 float LookupTable::getLightRequirement(PlantType type)
@@ -136,7 +99,6 @@ const char *LookupTable::getPlantName(PlantType type)
 PlantCharacteristics LookupTable::getPlantCharacteristics(PlantType type)
 {
     PlantCharacteristics characteristics;
-
     if (!isValidPlantType(type))
     {
         // Return default characteristics
@@ -153,52 +115,16 @@ PlantCharacteristics LookupTable::getPlantCharacteristics(PlantType type)
         characteristics.matureModifier = 1.0;
         return characteristics;
     }
-
-    // Read from program memory
+    // Read from program memory only
     memcpy_P(&characteristics, &PLANT_DATABASE[type], sizeof(PlantCharacteristics));
-
-    // Apply custom thresholds if available
-    if (hasCustomThresholds[type])
-    {
-        characteristics.moistureThreshold = customThresholds[type][0];
-        characteristics.temperatureOptimal = customThresholds[type][1];
-        characteristics.humidityOptimal = customThresholds[type][2];
-    }
-
     return characteristics;
 }
 
-void LookupTable::updateThresholds(PlantType type, float moistureThreshold,
-                                   float tempOptimal, float humidityOptimal)
-{
-    if (!isValidPlantType(type))
-    {
-        return;
-    }
 
-    customThresholds[type][0] = moistureThreshold;
-    customThresholds[type][1] = tempOptimal;
-    customThresholds[type][2] = humidityOptimal;
-    hasCustomThresholds[type] = true;
-}
 
-void LookupTable::resetToDefaults(PlantType type)
-{
-    if (!isValidPlantType(type))
-    {
-        return;
-    }
 
-    hasCustomThresholds[type] = false;
-}
 
-void LookupTable::resetAllToDefaults()
-{
-    for (int i = 0; i < 20; i++)
-    {
-        hasCustomThresholds[i] = false;
-    }
-}
+
 
 float LookupTable::getStageModifier(PlantType type, GrowthStage stage)
 {
@@ -235,9 +161,8 @@ float LookupTable::getStageModifier(PlantType type, GrowthStage stage)
 
 bool LookupTable::isValidPlantType(PlantType type)
 {
-    return (type >= 0 && type < 20);
+    return (type >= 0 && type < 5);
 }
-
 bool LookupTable::isValidGrowthStage(GrowthStage stage)
 {
     return (stage >= 0 && stage < 5);
@@ -245,9 +170,7 @@ bool LookupTable::isValidGrowthStage(GrowthStage stage)
 
 size_t LookupTable::getMemoryUsage() const
 {
-    size_t usage = sizeof(PLANT_DATABASE); // Program memory
-    usage += sizeof(customThresholds);     // RAM for custom thresholds
-    usage += sizeof(hasCustomThresholds);  // RAM for flags
+    size_t usage = sizeof(PLANT_DATABASE); // Program memory only
     return usage;
 }
 
@@ -255,12 +178,10 @@ void LookupTable::printPlantDatabase() const
 {
     Serial.println("Plant Database:");
     Serial.println("Type\tName\t\tMoisture\tTemp\tHumidity\tLight\tWater");
-
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 5; i++)
     {
         PlantCharacteristics plant;
         memcpy_P(&plant, &PLANT_DATABASE[i], sizeof(PlantCharacteristics));
-
         Serial.print(i);
         Serial.print("\t");
         Serial.print(plant.name);
@@ -274,14 +195,9 @@ void LookupTable::printPlantDatabase() const
         Serial.print(plant.lightRequirement);
         Serial.print("\t");
         Serial.print(plant.waterAmount);
-
-        if (hasCustomThresholds[i])
-        {
-            Serial.print(" (Custom)");
-        }
-
-        Serial.println();
     }
+    Serial.println();
+    // End of plant database print
 
     Serial.print("Memory usage: ");
     Serial.print(getMemoryUsage());

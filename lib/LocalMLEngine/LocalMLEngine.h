@@ -12,7 +12,7 @@
 struct LocalAction {
     bool shouldWater;
     unsigned int waterDuration; // milliseconds
-    float waterAmount;          // ml (calculated)
+    uint16_t waterAmount;       // ml (calculated)
     bool isFailsafe;            // emergency watering
 
     // Constructor with defaults
@@ -22,10 +22,10 @@ struct LocalAction {
 
 // Sensor data structure
 struct LocalSensorData {
-    float moisture;            // 0-1023 analog reading
-    float temperature;         // Celsius
-    float humidity;            // Percentage
-    float lightLevel;          // 0-1023 analog reading
+    int16_t moisture;          // 0-1023 analog reading
+    int16_t temperature;       // Celsius x10 (store as tenths)
+    int16_t humidity;          // Percentage x10 (store as tenths)
+    int16_t lightLevel;        // 0-1023 analog reading
     unsigned long lastWatered; // Hours since last watering
     PlantType plantType;
     GrowthStage growthStage;
@@ -46,9 +46,9 @@ private:
     DecisionTree* irrigationTree;
     LookupTable* plantThresholds;
     AnomalyDetector* sensorMonitor;
-    PlantType plantTypes[4];
-    GrowthStage growthStages[4];
-    unsigned long lastWateringTime[4];
+    PlantType plantTypes[2];
+    GrowthStage growthStages[2];
+    unsigned long lastWateringTime[2];
 public:
     LocalMLEngine();
     bool begin();
@@ -60,7 +60,7 @@ public:
     float calculateFeatureScore(const LocalSensorData &data);
     WaterAmount mapToWaterAmount(float prediction);
     unsigned int calculateWaterDuration(WaterAmount amount);
-    void updatePlantThresholds(PlantType type, float moistureThreshold, float tempOptimal, float humidityOptimal);
+    // void updatePlantThresholds(PlantType type, float moistureThreshold, float tempOptimal, float humidityOptimal); // removed for RAM savings
     void setFailsafeMode(bool enabled);
     bool isTimeToWater(int sensorIndex, unsigned long currentTime);
     float getMoistureThreshold(PlantType type, GrowthStage stage);

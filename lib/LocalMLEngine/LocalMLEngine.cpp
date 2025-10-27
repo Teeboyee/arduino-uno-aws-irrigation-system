@@ -22,7 +22,7 @@ static bool failsafeEnabled = true;
 LocalMLEngine::LocalMLEngine()
 {
     // Initialize plant configurations with defaults
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 2; i++)
     {
         plantTypes[i] = TOMATO;
         growthStages[i] = VEGETATIVE;
@@ -244,11 +244,7 @@ unsigned int LocalMLEngine::calculateWaterDuration(WaterAmount amount)
     }
 }
 
-void LocalMLEngine::updatePlantThresholds(PlantType type, float moistureThreshold,
-                                          float tempOptimal, float humidityOptimal)
-{
-    plantThresholds->updateThresholds(type, moistureThreshold, tempOptimal, humidityOptimal);
-}
+
 
 void LocalMLEngine::setFailsafeMode(bool enabled)
 {

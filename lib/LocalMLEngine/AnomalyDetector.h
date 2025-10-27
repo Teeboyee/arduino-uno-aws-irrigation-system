@@ -9,8 +9,6 @@
 #define ANOMALY_THRESHOLD 3.0     // 3 standard deviations
 #define MIN_SAMPLES 5             // Minimum samples for statistics
 
-// Forward declaration - SensorData defined in LocalMLEngine.h
-struct SensorData;
 
 // Statistical data for each sensor type
 struct SensorStats {
@@ -28,7 +26,7 @@ struct SensorStats {
 class AnomalyDetector {
 private:
     // Circular buffer for sensor history
-    SensorData sensorHistory[ANOMALY_BUFFER_SIZE];
+    LocalSensorData sensorHistory[ANOMALY_BUFFER_SIZE];
     uint8_t bufferIndex;
     uint8_t bufferSize;
     
@@ -44,7 +42,7 @@ private:
     float calculateZScore(float value, const SensorStats& stats);
     
     // Utility methods
-    void addToBuffer(const SensorData& data);
+    void addToBuffer(const LocalSensorData& data);
     void extractSensorValues(float* moisture, float* temperature, float* humidity, float* light);
     
 public:
@@ -54,7 +52,7 @@ public:
     bool begin();
     
     // Main anomaly detection method
-    float calculateAnomalyScore(const SensorData& data);
+    float calculateAnomalyScore(const LocalSensorData& data);
     
     // Individual sensor anomaly detection
     bool isMoistureAnomaly(float moisture);
@@ -63,9 +61,9 @@ public:
     bool isLightAnomaly(float light);
     
     // Sensor fault detection
-    bool isSensorFault(const SensorData& data);
-    bool isSensorDisconnected(const SensorData& data);
-    bool isSensorOutOfRange(const SensorData& data);
+    bool isSensorFault(const LocalSensorData& data);
+    bool isSensorDisconnected(const LocalSensorData& data);
+    bool isSensorOutOfRange(const LocalSensorData& data);
     
     // Statistics access
     SensorStats getMoistureStats() const;
